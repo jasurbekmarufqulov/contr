@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1000 Tagacha Test Tuzish va Yechish</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 650px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        h2, h3 { color: #333; text-align: center; margin-top: 0; }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #444;
+            font-size: 14px;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #00bcd4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        button:hover { background: #0097a7; }
+        .btn-full { width: 100%; margin-top: 10px; }
+        .btn-danger { background: #e53935; }
+        .btn-danger:hover { background: #c62828; }
+        
+        /* Ro'yxat dizayni */
+        .added-questions {
+            margin-top: 15px;
+            background: #eef2f3;
+            padding: 12px;
+            border-radius: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .added-questions ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 13px;
+        }
+        .added-questions li {
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        /* Test yechish qismi */
+        .quiz-section, .result-section {
+            display: none;
+        }
+        .question-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 15px;
+        }
+        .options label {
+            display: block;
+            margin: 8px 0;
+            cursor: pointer;
+            padding: 10px 12px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-weight: normal;
+            font-size: 14px;
+        }
+        .options label:hover {
+            background: #f0f8ff;
+            border-color: #00bcd4;
+        }
+        .options input {
+            margin-right: 10px;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .badge {
+            background: #ff9800;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 1. TEST KIRITISH QISMI -->
+    <div id="creator-section">
+        <h2>Test Tuzish (Maksimal: 1000 ta)</h2>
+        <div style="text-align: center; margin-bottom: 10px;">
+            Jami kiritilganlar: <span id="count" class="badge">0</span> / 1000
+        </div>
+        
+        <div class="form-group">
+            <label>Savol matni:</label>
+            <input type="text" id="qText" placeholder="Masalan: Fizika fanidan...">
+        </div>
+        <div class="form-group">
+            <label>A variant:</label>
+            <input type="text" id="optA" placeholder="A variant">
+        </div>
+        <div class="form-group">
+            <label>B variant:</label>
+            <input type="text" id="optB" placeholder="B variant">
+        </div>
+        <div class="form-group">
+            <label>C variant:</label>
+            <input type="text" id="optC" placeholder="C variant">
+        </div>
+        <div class="form-group">
+            <label>D variant:</label>
+            <input type="text" id="optD" placeholder="D variant">
+        </div>
+        <div class="form-group">
+            <label>To'g'ri javobni tanlang:</label>
+            <select id="correctAnswer">
+                <option value="A">A variant</option>
+                <option value="B">B variant</option>
+                <option value="C">C variant</option>
+                <option value="D">D variant</option>
+            </select>
+        </div>
+
+        <button onclick="addQuestion()">+ Savolni qo'shish</button>
+        <button class="btn-danger" onclick="clearAllQuestions()" style="float: right;">Hammasini o'chirish</button>
+        <div style="clear: both;"></div>
+
+        <div class="added-questions">
+            <strong>So'nggi qo'shilganlar:</strong>
+            <ul id="qList"></ul>
+        </div>
+
+        <button class="btn-full" style="background: #2e7d32; margin-top: 15px;" onclick="startQuiz()">Testni boshlash 🚀</button>
+    </div>
+
+    <!-- 2. TEST YECHISH QISMI -->
+    <div id="quiz-section" class="quiz-section">
+        <h3 id="quiz-header">Testni yechish</h3>
+        <div class="question-title" id="currentQuestionText"></div>
+        <div class="options" id="currentOptionsContainer"></div>
+
+        <div class="nav-buttons">
+            <button id="prevBtn" onclick="prevQuestion()" disabled>Oldingi</button>
+            <span id="progressIndicator" style="align-self: center; font-weight: bold; color: #555;"></span>
+            <button id="nextBtn" onclick="nextQuestion()">Keyingi</button>
+        </div>
+        <button class="btn-danger btn-full" style="margin-top: 15px;" onclick="quitQuiz()">Testni to'xtatish</button>
+    </div>
+
+    <!-- 3. NATIJA QISMI -->
+    <div id="result-section" class="result-section">
+        <h3>Test yakunlandi! 🎉</h3>
+        <p id="scoreText" style="font-size: 18px; font-weight: bold; text-align: center; color: #2e7d32;"></p>
+        <button class="btn-full" onclick="restartCreator()">Asosiy menyuga qaytish</button>
+    </div>
+</div>
+
+<script>
+    let questions = [];
+    let currentIndex = 0;
+    let userAnswers = {};
+
+    // Sahifa ochilganda xotiradagi savollarni yuklash
+    window.onload = function() {
+        const saved = localStorage.getItem('my_quiz_questions');
+        if (saved) {
+            questions = JSON.parse(saved);
+            updateQuestionList();
+        }
+    };
+
+    function addQuestion() {
+        if (questions.length >= 1000) {
+            alert("Maksimal 1000 ta savol chegarasiga yetdingiz!");
+            return;
+        }
+
+        const text = document.getElementById('qText').value.trim();
+        const a = document.getElementById('optA').value.trim();
+        const b = document.getElementById('optB').value.trim();
+        const c = document.getElementById('optC').value.trim();
+        const d = document.getElementById('optD').value.trim();
+        const answer = document.getElementById('correctAnswer').value;
+
+        if (!text || !a || !b || !c || !d) {
+            alert("Iltimos, barcha maydonlarni to'ldiring!");
+            return;
+        }
+
+        questions.push({
+            text: text,
+            options: [
+                { letter: 'A', value: a },
+                { letter: 'B', value: b },
+                { letter: 'C', value: c },
+                { letter: 'D', value: d }
+            ],
+            answer: answer
+        });
+
+        // Brauzer xotirasiga saqlash
+        localStorage.setItem('my_quiz_questions', JSON.stringify(questions));
+
+        // Maydonlarni tozalash
+        document.getElementById('qText').value = '';
+        document.getElementById('optA').value = '';
+        document.getElementById('optB').value = '';
+        document.getElementById('optC').value = '';
+        document.getElementById('optD').value = '';
+        document.getElementById('qText').focus();
+
+        updateQuestionList();
+    }
+
+    function updateQuestionList() {
+        const list = document.getElementById('qList');
+        list.innerHTML = '';
+        
+        // Oxirgi qo'shilgan 5 tasini ko'rsatib turish (ro'yxat uzun bo'lib ketmasligi uchun)
+        let recent = questions.slice(-5).reverse();
+        recent.forEach((q, idx) => {
+            let actualIndex = questions.length - idx;
+            let li = document.createElement('li');
+            li.innerText = `${actualIndex}. ${q.text} (Javob: ${q.answer})`;
+            list.appendChild(li);
+        });
+
+        document.getElementById('count').innerText = questions.length;
+    }
+
+    function clearAllQuestions() {
+        if (confirm("Haqiqatan ham barcha kiritilgan savollarni o'chirmoqchimisiz?")) {
+            questions = [];
+            localStorage.removeItem('my_quiz_questions');
+            updateQuestionList();
+        }
+    }
+
+    function startQuiz() {
+        if (questions.length === 0) {
+            alert("Test boshlash uchun kamida 1 ta savol qo'shishingiz kerak!");
+            return;
+        }
+
+        document.getElementById('creator-section').style.display = 'none';
+        document.getElementById('quiz-section').style.display = 'block';
+        currentIndex = 0;
+        userAnswers = {};
+        renderQuizCard();
+    }
+
+    function renderQuizCard() {
+        const q = questions[currentIndex];
+        document.getElementById('quiz-header').innerText = `Savol ${currentIndex + 1} / ${questions.length}`;
+        document.getElementById('currentQuestionText').innerText = `${currentIndex + 1}. ${q.text}`;
+        
+        const optContainer = document.getElementById('currentOptionsContainer');
+        optContainer.innerHTML = '';
+
+        q.options.forEach(opt => {
+            let isChecked = userAnswers[currentIndex] === opt.letter ? 'checked' : '';
+            optContainer.innerHTML += `
+                <label>
+                    <input type="radio" name="current_option" value="${opt.letter}" ${isChecked} onclick="saveAnswer('${opt.letter}')">
+                    ${opt.letter}) ${opt.value}
+                </label>
+            `;
+        });
+
+        document.getElementById('prevBtn').disabled = currentIndex === 0;
+        
+        const nextBtn = document.getElementById('nextBtn');
+        if (currentIndex === questions.length - 1) {
+            nextBtn.innerText = "Natijani ko'rish";
+        } else {
+            nextBtn.innerText = "Keyingi";
+        }
+        
+        document.getElementById('progressIndicator').innerText = `${currentIndex + 1} / ${questions.length}`;
+    }
+
+    function saveAnswer(letter) {
+        userAnswers[currentIndex] = letter;
+    }
+
+    function nextQuestion() {
+        if (currentIndex < questions.length - 1) {
+            currentIndex++;
+            renderQuizCard();
+        } else {
+            showResults();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderQuizCard();
+        }
+    }
+
+    function quitQuiz() {
+        if (confirm("Testni to'xtatmoqchimisiz? Natijangiz saqlanmaydi.")) {
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('creator-section').style.display = 'block';
+            updateQuestionList();
+        }
+    }
+
+    function showResults() {
+        let score = 0;
+        questions.forEach((q, index) => {
+            if (userAnswers[index] === q.answer) {
+                score++;
+            }
+        });
+
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('result-section').style.display = 'block';
+        document.getElementById('scoreText').innerText = `Sizning natijangiz: ${score} ta to'g'ri / Jami ${questions.length} ta savol`;
+    }
+
+    function restartCreator() {
+        document.getElementById('result-section').style.display = 'none';
+        document.getElementById('creator-section').style.display = 'block';
+        updateQuestionList();
+    }
+</script>
+
+</body>
+</html>
